@@ -1,4 +1,4 @@
-import {cloneElement, ReactElement, ReactNode, useState} from "react";
+import {cloneElement, ReactElement, useState} from "react";
 import {
     flip,
     offset,
@@ -9,16 +9,19 @@ import {
     useInteractions
 } from "@floating-ui/react-dom-interactions";
 import './Tooltip.css';
+import {mergeRefs} from "../../utils";
 
 export type TooltipPlacement = Side;
 
-export type TooltipProps = {    
-    children: ReactElement,   
-    text: string
-    placement?: TooltipPlacement
+export type TooltipProps = {
+    children: ReactElement,
+    label: string
+    placement?: TooltipPlacement,
+    openDelay?: number;
+    closeDelay?: number;
 }
 
-export const Tooltip = ({text, placement = 'top', children}: TooltipProps) => {
+export const Tooltip = ({label, placement = 'top', openDelay = 400, closeDelay = 10, children}: TooltipProps) => {
     const [open, setOpen] = useState(false);
     const strategy = 'absolute';
 
@@ -37,30 +40,32 @@ export const Tooltip = ({text, placement = 'top', children}: TooltipProps) => {
         strategy: strategy,
         onOpenChange: setOpen
     });
-    
-    const {getReferenceProps, getFloatingProps} = useInteractions([
+
+    useInteractions([
         useHover(context, {
             delay: {
-                open: 200,
-                close: 0
+                open: openDelay,
+                close: closeDelay
             }
         }),
         useFocus(context)
     ])
-    
+
+    const ref = mergeRefs([reference, (children as any).ref]);
+
     return (
         <div>
-            {cloneElement(children, {ref: reference})}
+            {cloneElement(children, {ref})}
             {open && (
-                <div
-                    ref={floating}
-                    style={{
-                        position: strategy,
-                        top: y ?? 0,
-                        left: x ?? 0,
-                    }}
+                <div className="tooltip"
+                     ref={floating}
+                     style={{
+                         position: strategy,
+                         top: y ?? 0,
+                         left: x ?? 0,
+                     }}
                 >
-                    {text}
+                    {label}
                 </div>
             )}
         </div>

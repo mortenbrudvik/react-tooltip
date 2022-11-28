@@ -1,5 +1,9 @@
+html {
+  background-color: aliceblue;
+}
+
 .App {
-  text-align: center;
+  margin: 20px;
 }
 
 .App-logo {
